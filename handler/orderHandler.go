@@ -21,7 +21,7 @@ func NewOrderHandler(orderService service.OrderService) *OrderHandler {
 }
 
 func OrderApi(router *gin.Engine) {
-	orderHandler := NewOrderHandler(impl.NewOrderServiceImpl(dao.NewOrderDao(util.Db)))
+	orderHandler := NewOrderHandler(impl.NewOrderServiceImpl(dao.NewOrderDao(util.InitMySql())))
 
 	orderGroup := router.Group("/order")
 	{
@@ -33,7 +33,7 @@ func OrderApi(router *gin.Engine) {
 	}
 }
 
-func (orderHandler OrderHandler)CreateOrder(c *gin.Context) {
+func (orderHandler *OrderHandler)CreateOrder(c *gin.Context) {
 	orderNo := c.PostForm("orderNo")
 	userName := c.PostForm("userName")
 	amount,_ := strconv.ParseFloat(c.PostForm("amount"), 64)
@@ -46,7 +46,7 @@ func (orderHandler OrderHandler)CreateOrder(c *gin.Context) {
 	}
 }
 
-func (orderHandler OrderHandler)GetOrderByOrderNo(c *gin.Context) {
+func (orderHandler *OrderHandler)GetOrderByOrderNo(c *gin.Context) {
 	orderNo := c.Param("orderNo")
 	order, err := orderHandler.orderService.GetOrderByOrderNo(orderNo)
 	if err != nil {
@@ -56,7 +56,7 @@ func (orderHandler OrderHandler)GetOrderByOrderNo(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
-func (orderHandler OrderHandler)GetAllOrder(c *gin.Context) {
+func (orderHandler *OrderHandler)GetAllOrder(c *gin.Context) {
 	orderList, err := orderHandler.orderService.GetAllOrder()
 	if err != nil {
 		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
@@ -65,7 +65,7 @@ func (orderHandler OrderHandler)GetAllOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, orderList)
 }
 
-func (orderHandler OrderHandler)UpdateOrderByOrderNo(c *gin.Context) {
+func (orderHandler *OrderHandler)UpdateOrderByOrderNo(c *gin.Context) {
 	orderNo := c.PostForm("orderNo")
 	amount,_ := strconv.ParseFloat(c.PostForm("amount"), 64)
 	status := c.PostForm("status")
@@ -77,7 +77,7 @@ func (orderHandler OrderHandler)UpdateOrderByOrderNo(c *gin.Context) {
 	}
 }
 
-func (orderHandler OrderHandler)DeleteOrderByOrderNo(c *gin.Context) {
+func (orderHandler *OrderHandler)DeleteOrderByOrderNo(c *gin.Context) {
 	orderNo := c.Param("orderNo")
 	if err := orderHandler.orderService.DeleteOrderByOrderNo(orderNo); err != nil {
 		c.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
